@@ -3,12 +3,64 @@ import passport from "passport";
 import dotenv from "dotenv";
 import shortlinks from "../utils/shortlinks.js";
 import O from "../models/shortlink.js";
+import db from "../init.js";
+import { get, set, ref, orderByChild, equalTo, query } from "firebase/database";
+import bcrypt from "bcrypt";
+import User from "../models/user.js";
+import * as EmailValidator from "email-validator";
 const getAllShortcuts = shortlinks.getAllShortcuts;
 const getShortcutDetails = shortlinks.getShortcutDetails;
 const createShortLink = shortlinks.createShortLink;
-const shortlinkCreateValidator = shortlinks.shortlinkCreateValidator;
 dotenv.config();
 const router = Express.Router();
+router.post("/register", async (req, res) => {
+  let { username, ...bodyRequest } = req.body;
+  if (!username || username.length == 0)
+    return res.send({ message: "Please provide a username to register" });
+  if (!bodyRequest.email || !bodyRequest.email.length)
+    return res.send({ message: "Please provide an email" });
+  username = username.toLowerCase();
+  try {
+    const snapshot = await get(ref(db, "users/" + username + "/email"));
+    if (snapshot.val()) return res.send({ message: "User already exists" });
+  } catch (err) {}
+  try {
+    const snapshot = await get(
+      query(ref(db, "users"), orderByChild("email"), equalTo(bodyRequest.email))
+    );
+    if (snapshot.val()) {
+      return res.send({
+        message:
+          "Email id already in use, please use another email id to regsiter",
+      });
+    }
+  } catch (err) {}
+  const user: User = bodyRequest as User;
+
+  if (!EmailValidator.validate(user.email))
+    return res.send({ message: "Please provide a valid emailid" });
+  if (!user.password || !user.password.length || user.password.length > 20)
+    return res.send({
+      message: "Please provide a password with maximum 20 characters",
+    });
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(user.password, salt);
+    user.password = hashedPassword;
+  } catch (err) {
+    return res
+      .status(500)
+      .send({ message: "Internal server error in creating profile" });
+  }
+  try {
+    await set(ref(db, "users/" + username), user);
+    res.send({ message: "created profile for username: " + username });
+  } catch (err) {
+    res
+      .status(500)
+      .send({ message: "Internal server error in creating profile" });
+  }
+});
 router.post("/login", (req, res, next) => {
   passport.authenticate("local", { session: true }, (err, user, info) => {
     if (err || !user) {
@@ -47,7 +99,20 @@ router.get("/users/shortlink", async (req, res) => {
   res.status(200).send(shortlinkDetails);
 });
 router.post("/users/shortlink", async (req, res) => {
-  let { shortlink, ...body } = req.body;
+  let { shortlink, ...bodyRequest } = req.body;
+  const body: O = bodyRequest;
+  if (!body.url)
+    return res.send({
+      message:
+        "Please provide the URL for which the shortlink has to be created",
+    });
+  try {
+    const url = new URL(body.url as string);
+  } catch (err) {
+    return res.send({ message: "URL should be a valid URL" });
+  }
+  if (!body.description || !body.description.length)
+    return res.send({ message: "Please include a shortlink description" });
   const user = req.user;
   const username: string = (user as any).username;
   res.send(await createShortLink(username, shortlink, body));

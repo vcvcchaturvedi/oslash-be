@@ -6,7 +6,8 @@ const getAllShortcuts = async (username: string) => {
   const snapshot = await get(ref(db, "users/" + username));
   if (snapshot.val()) {
     const shortlinks = snapshot.val().o;
-    return shortlinks;
+    if (shortlinks) return shortlinks;
+    return {};
   } else return {};
 };
 const getShortcutDetails = async (username: string, shortlink: string) => {
@@ -46,7 +47,7 @@ const shortlinkCreateValidator = async (
   shortlink: string,
   tags: Array<string>
 ) => {
-  const regexLinkTest = /^[a-z0-9-]+/g;
+  const regexLinkTest = /^[a-z0-9-/]+/g;
   const resultTestRegex = regexLinkTest.exec(shortlink);
 
   if (
@@ -54,7 +55,7 @@ const shortlinkCreateValidator = async (
     resultTestRegex.length &&
     (resultTestRegex as any)[0] === shortlink
   ) {
-    if (tags.length > 0) {
+    if (tags && tags.length > 0) {
       let flag = tags.some((tag) => {
         const regexTagTest = /^[a-z0-9-]{1,20}/g;
         const resultTagRegexTest = regexTagTest.exec(tag);
@@ -90,5 +91,4 @@ export default {
   getAllShortcuts,
   getShortcutDetails,
   createShortLink,
-  shortlinkCreateValidator,
 };

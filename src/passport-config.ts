@@ -9,7 +9,7 @@ import dotenv from "dotenv";
 dotenv.config();
 const dbRef = ref(db, "users");
 
-const localLogin = new LocalStrategy(function (
+const localLogin = new LocalStrategy({ usernameField: "email" }, function (
   username: string,
   password: string,
   cb: any
