@@ -1,9 +1,12 @@
 import Express from "express";
 import passport from "passport";
 import dotenv from "dotenv";
-import shortcuts from "../utils/shortcuts.js";
-const getAllShortcuts = shortcuts.getAllShortcuts;
-const getShortcutDetails = shortcuts.getShortcutDetails;
+import shortlinks from "../utils/shortlinks.js";
+import O from "../models/shortlink.js";
+const getAllShortcuts = shortlinks.getAllShortcuts;
+const getShortcutDetails = shortlinks.getShortcutDetails;
+const createShortLink = shortlinks.createShortLink;
+const shortlinkCreateValidator = shortlinks.shortlinkCreateValidator;
 dotenv.config();
 const router = Express.Router();
 router.post("/login", (req, res, next) => {
@@ -30,18 +33,24 @@ router.use("/users", async (req, res, next) => {
   if (req.isAuthenticated()) next();
   else res.status(401).send("Not authorized");
 });
-router.get("/users/shortcuts", async (req, res) => {
+router.get("/users/shortlinks", async (req, res) => {
   const user = req.user;
   const username: string = (user as any).username;
-  const shortcutsJSON = await getAllShortcuts(username);
-  res.send(shortcutsJSON);
+  const shortlinksJSON = await getAllShortcuts(username);
+  res.send(shortlinksJSON);
 });
-router.get("/users/shortcut", async (req, res) => {
+router.get("/users/shortlink", async (req, res) => {
   const user = req.user;
   const username: string = (user as any).username;
-  const shortcut: string = req.query.q as string;
-  const shortcutDetails = await getShortcutDetails(username, shortcut);
-  res.status(200).send(shortcutDetails);
+  const shortlink: string = req.query.q as string;
+  const shortlinkDetails = await getShortcutDetails(username, shortlink);
+  res.status(200).send(shortlinkDetails);
+});
+router.post("/users/shortlink", async (req, res) => {
+  let { shortlink, ...body } = req.body;
+  const user = req.user;
+  const username: string = (user as any).username;
+  res.send(await createShortLink(username, shortlink, body));
 });
 router.get("/logout", (req, res, next) => {
   req.logout(function (err) {
