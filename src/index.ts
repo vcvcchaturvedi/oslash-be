@@ -46,17 +46,15 @@ passport.serializeUser((user, done) => {
   done(null, user);
 });
 passport.deserializeUser((user: any, done) => {
-  get(query(dbRef, orderByChild("email"), equalTo(user.email))).then(
-    (userSnapshot) => {
-      if (userSnapshot.val() && userSnapshot.val().length == 1) {
-        return done(null, { email: userSnapshot.val()[0].email });
-      } else {
-        return done(null, false);
-      }
+  get(ref(db, "users/" + user.username)).then((userSnapshot) => {
+    if (userSnapshot.val()) {
+      return done(null, { username: user.username });
+    } else {
+      return done(null, false);
     }
-  );
+  });
 });
-app.use("/auth", router);
+app.use("/", router);
 
 app.use((err: any, req: any, res: any, next: any) => {
   if (res.headersSent) {
@@ -68,3 +66,4 @@ app.use((err: any, req: any, res: any, next: any) => {
     .send("Something broke and we are on it! Sorry for the trouble :)");
 });
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+export default app;

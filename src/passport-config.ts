@@ -16,13 +16,14 @@ const localLogin = new LocalStrategy(function (
 ) {
   get(query(dbRef, orderByChild("email"), equalTo(username))).then(
     (userSnapshot) => {
-      const user: Array<User> = userSnapshot.val();
-      if (user && user.length == 1) {
-        if (!bcrypt.compareSync(password, user[0].password))
+      const user: any = userSnapshot.val();
+      const usernameKey = Object.keys(user)[0];
+      if (user) {
+        if (!bcrypt.compareSync(password, user[usernameKey].password))
           return cb(null, false, { message: "Incorrect Password" });
         return cb(
           null,
-          { email: user[0].email },
+          { username: Object.keys(user)[0] },
           { message: "Logged in successfully" }
         );
       } else return cb(null, false, { message: "Email id is not registered" });
