@@ -1,7 +1,6 @@
 import db from "../init.js";
 import { ref, get, set } from "firebase/database";
 import O from "../models/shortlink.js";
-import { triggerAsyncId } from "async_hooks";
 const getAllShortcuts = async (username: string) => {
   const snapshot = await get(ref(db, "users/" + username));
   if (snapshot.val()) {
