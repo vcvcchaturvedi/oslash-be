@@ -1,12 +1,12 @@
 import Express from "express";
 import passport from "passport";
-import * as passportConfig from "./passport-config.js";
-import db from "./init.js";
+import * as passportConfig from "./passport-config";
+import db from "./init";
 import dotenv from "dotenv";
 import session from "express-session";
 import cookieParser from "cookie-parser";
 import { ref, get } from "firebase/database";
-import router from "./routes/main.js";
+import router from "./routes/main";
 import bodyParser from "body-parser";
 const dbRef = ref(db, "users");
 dotenv.config();

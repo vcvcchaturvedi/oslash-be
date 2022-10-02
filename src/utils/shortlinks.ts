@@ -1,4 +1,4 @@
-import db from "../init.js";
+import db from "../init";
 import {
   ref,
   get,
@@ -8,7 +8,7 @@ import {
   endAt,
   query,
 } from "firebase/database";
-import O from "../models/shortlink.js";
+import O from "../models/shortlink";
 const getAllShortcuts = async (username: string, sort?: string) => {
   if (!sort) {
     const snapshot = await get(ref(db, "users/" + username + "/o"));

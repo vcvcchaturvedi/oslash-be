@@ -1,12 +1,12 @@
 import Express from "express";
 import passport from "passport";
 import dotenv from "dotenv";
-import shortlinks from "../utils/shortlinks.js";
-import O from "../models/shortlink.js";
-import db from "../init.js";
+import shortlinks from "../utils/shortlinks";
+import O from "../models/shortlink";
+import db from "../init";
 import { get, set, ref, orderByChild, equalTo, query } from "firebase/database";
 import bcrypt from "bcrypt";
-import User from "../models/user.js";
+import User from "../models/user";
 import * as EmailValidator from "email-validator";
 const getAllShortcuts = shortlinks.getAllShortcuts;
 const getShortcutDetails = shortlinks.getShortcutDetails;

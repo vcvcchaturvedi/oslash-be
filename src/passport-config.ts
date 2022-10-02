@@ -1,6 +1,5 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import User from "./models/user.js";
 import db from "./init.js";
 import { get, ref, query, orderByChild, equalTo } from "firebase/database";
 import bcrypt from "bcrypt";
