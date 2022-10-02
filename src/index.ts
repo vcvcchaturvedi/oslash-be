@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 import session from "express-session";
 import cookieParser from "cookie-parser";
 import { ref, get } from "firebase/database";
-import router from "./routes/auth.js";
+import router from "./routes/main.js";
 import bodyParser from "body-parser";
 const dbRef = ref(db, "users");
 dotenv.config();

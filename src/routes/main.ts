@@ -88,14 +88,18 @@ router.use("/users", async (req, res, next) => {
 router.get("/users/shortlinks", async (req, res) => {
   const user = req.user;
   const username: string = (user as any).username;
-  const shortlinksJSON = await getAllShortcuts(username);
+  const shortlinksJSON = await getAllShortcuts(
+    username,
+    req.query?.sort as any
+  );
   res.send(shortlinksJSON);
 });
 router.get("/users/shortlink", async (req, res) => {
   const user = req.user;
   const username: string = (user as any).username;
   const shortlink: string = req.query.q as string;
-  const shortlinkDetails = await getShortcutDetails(username, shortlink);
+  const match: string = req.query.match as string;
+  const shortlinkDetails = await getShortcutDetails(username, shortlink, match);
   res.status(200).send(shortlinkDetails);
 });
 router.post("/users/shortlink", async (req, res) => {

@@ -1,6 +1,6 @@
-type User = {
+interface User {
   email: string;
   password: string;
-  o: Object;
-};
+  o?: Object;
+}
 export default User;

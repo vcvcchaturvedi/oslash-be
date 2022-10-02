@@ -1,6 +1,6 @@
-type O = {
+interface O {
   url: string;
   description: string;
-  tags: Array<string>;
-};
+  tags?: Array<string>;
+}
 export default O;
