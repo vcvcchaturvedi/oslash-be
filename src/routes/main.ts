@@ -121,6 +121,24 @@ router.post("/users/shortlink", async (req, res) => {
   const username: string = (user as any).username;
   res.send(await createShortLink(username, shortlink, body));
 });
+router.delete("/users/shortlink", async (req, res) => {
+  const shortlink: string = req.query.q as string;
+  const user = req.user;
+  const username: string = (user as any).username;
+  try {
+    const snapshot = await get(
+      ref(db, "users/" + username + "/o/" + shortlink)
+    );
+    if (!snapshot.val()) {
+      return res.send({ message: "No such shortlink exists" });
+    }
+    let refSnapshot = snapshot.ref;
+    await set(refSnapshot, null);
+    res.send({ message: "Successfully deleted shortlink" });
+  } catch (err) {
+    res.status(503).send({ message: "Unable to delete the shortlink" });
+  }
+});
 router.get("/logout", (req, res, next) => {
   req.logout(function (err) {
     if (err) {
